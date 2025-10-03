@@ -1,23 +1,40 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Add Activity</h2>
-<form method="post">
-  <label>Category
+
+<form method="post" style="display:grid; gap:0.75rem; max-width:480px;">
+  <label>
+    Category
     <select name="category" required>
-      {% for cat,unit in categories %}
-      <option value="{{cat}}">{{cat}}</option>
+      {% for c, u in categories %}
+        <option value="{{ c }}">{{ c }}</option>
       {% endfor %}
     </select>
   </label>
-  <label>Amount <input type="number" name="amount" step="0.001" min="0" required></label>
-  <label>Unit
-    <select name="unit" required>
-      {% for cat,unit in categories %}
-      <option value="{{unit}}">{{unit}}</option>
-      {% endfor %}
-    </select>
+
+  <label>
+    Amount
+    <input name="amount" type="number" step="any" required>
   </label>
-  <label>Note (optional) <input type="text" name="note"></label>
-  <button type="submit">Save</button>
+
+  <label>
+    Unit
+    <input name="unit" type="text" required value="{{ categories[0][1] if categories else '' }}">
+  </label>
+
+  <label>
+    Note (optional)
+    <input name="note" type="text" placeholder="e.g., meter reading, trip purpose">
+  </label>
+
+  <!-- NEW: date/time of the activity -->
+  <label>
+    When did this occur?
+    <input name="ts" type="datetime-local"
+           value="{{ now().strftime('%Y-%m-%dT%H:%M') }}"
+           required>
+  </label>
+
+  <button type="submit">Add</button>
 </form>
 {% endblock %}

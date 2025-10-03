@@ -3,7 +3,6 @@ from sqlalchemy import text
 from .db import get_db
 from .factors import get_factor
 
-# Option 1 (public objects): no boto3 needed
 import os
 from datetime import datetime
 
@@ -32,10 +31,18 @@ def index():
 @bp.route("/add", methods=["GET", "POST"])
 def add_activity():
     if request.method == "POST":
-        category = request.form["category"]
+        category = request.form["category"].strip()
         amount = float(request.form["amount"])
-        unit = request.form["unit"]
+        unit = request.form["unit"].strip()
         note = request.form.get("note", "").strip()
+
+        # Parse user-supplied timestamp (from datetime-local input)
+        ts_str = request.form.get("ts", "").strip()
+        try:
+            ts = datetime.fromisoformat(ts_str) if ts_str else datetime.utcnow()
+        except ValueError:
+            ts = datetime.utcnow()
+            flash("Invalid date/time format. Saved with current time.", "error")
 
         factor = get_factor(category, unit)
         if factor is None:
@@ -45,9 +52,9 @@ def add_activity():
         kg = amount * factor
         db = get_db()
         db.execute(text("""
-            INSERT INTO activities(category, amount, unit, note, kg_co2e)
-            VALUES(:c, :a, :u, :n, :k)
-        """), {"c": category, "a": amount, "u": unit, "n": note, "k": kg})
+            INSERT INTO activities(ts, category, amount, unit, note, kg_co2e)
+            VALUES(:ts, :c, :a, :u, :n, :k)
+        """), {"ts": ts, "c": category, "a": amount, "u": unit, "n": note, "k": kg})
         db.commit()
         flash("Activity added.", "ok")
         return redirect(url_for("main.index"))
@@ -59,7 +66,7 @@ def add_activity():
         ("flight_shorthaul", "km"),
         ("beef", "kg"),
     ]
-    return render_template("add_activity.html", categories=categories)
+    return render_template("add_activity.html", categories=categories, now=datetime.utcnow)
 
 
 @bp.route("/list")
