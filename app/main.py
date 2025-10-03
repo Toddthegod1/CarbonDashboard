@@ -1,9 +1,19 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from sqlalchemy import text
 from .db import get_db
 from .factors import get_factor
 
+# NEW imports for S3 presigned URLs and "now" convenience
+import os
+import boto3
+from datetime import datetime
+
 bp = Blueprint("main", __name__)
+
+# Reuse AWS + S3 settings from env (same values you put in .env)
+S3_BUCKET = os.environ.get("S3_BUCKET")
+AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
+s3 = boto3.client("s3", region_name=AWS_REGION)
 
 @bp.route("/")
 def index():
@@ -39,7 +49,6 @@ def add_activity():
         db.commit()
         flash("Activity added.", "ok")
         return redirect(url_for("main.index"))
-    # simple choices (these map to seed_factors)
     categories = [
         ("electricity_nz","kWh"),
         ("car_gasoline","km"),
@@ -64,19 +73,48 @@ def reports():
     if request.method == "POST":
         year = int(request.form["year"])
         month = int(request.form["month"])
-        # upsert or insert-ignored; if exists and complete, we show it
+
+        # Insert only if not exists
         existing = db.execute(text("""
-            SELECT id, status FROM reports WHERE period_year=:y AND period_month=:m
+            SELECT id, status FROM reports
+            WHERE period_year=:y AND period_month=:m
         """), {"y": year, "m": month}).fetchone()
+
         if existing is None:
             db.execute(text("""
                 INSERT INTO reports(period_year, period_month, status)
                 VALUES(:y, :m, 'PENDING')
             """), {"y": year, "m": month})
             db.commit()
-        # worker will pick it up
+            flash("Report requested. It will be ready shortly.", "ok")
+        else:
+            flash("Report already exists for that month.", "info")
+
     reps = db.execute(text("""
         SELECT id, period_year, period_month, status, s3_key, created_at, updated_at
-        FROM reports ORDER BY period_year DESC, period_month DESC
+        FROM reports
+        ORDER BY period_year DESC, period_month DESC
     """)).fetchall()
-    return render_template("reports.html", reports=reps)
+
+    # pass 'now' so the template can prefill
+    return render_template("reports.html", reports=reps, now=datetime.utcnow)
+
+# NEW: presigned download route (keeps bucket private)
+@bp.route("/reports/<int:report_id>/download")
+def download_report(report_id):
+    db = get_db()
+    row = db.execute(text("""
+        SELECT status, s3_key
+        FROM reports
+        WHERE id = :id
+    """), {"id": report_id}).fetchone()
+
+    if not row or row["status"] != "COMPLETE" or not row["s3_key"]:
+        abort(404)
+
+    presigned = s3.generate_presigned_url(
+        "get_object",
+        Params={"Bucket": S3_BUCKET, "Key": row["s3_key"]},
+        ExpiresIn=3600  # 1 hour
+    )
+    return redirect(presigned)
