@@ -2,40 +2,54 @@
 {% block content %}
 <h2>Add Activity</h2>
 
-<form method="post">
-  <label>Category
+<form method="post" style="max-width: 520px">
+  <label>
+    Category
     <select name="category" required>
-      {% for cat, unit in categories %}
-        <option value="{{ cat }}">{{ cat }}</option>
+      {% for c,u in categories %}
+        <option value="{{ c }}">{{ c }}</option>
       {% endfor %}
     </select>
   </label>
-  <br>
 
-  <label>Amount
-    <input type="number" step="any" name="amount" required>
+  <div style="height:.6rem"></div>
+
+  <label>
+    Amount
+    <input name="amount" type="number" step="0.001" min="0" required>
   </label>
-  <br>
 
-  <label>Unit
+  <div style="height:.6rem"></div>
+
+  <label>
+    Unit
     <select name="unit" required>
-      {% for cat, unit in categories %}
-        <option value="{{ unit }}">{{ unit }}</option>
+      {% for c,u in categories %}
+        <option value="{{ u }}">{{ u }}</option>
       {% endfor %}
     </select>
   </label>
-  <br>
 
-  <label>Note
-    <input type="text" name="note">
+  <div style="height:.6rem"></div>
+
+  <label>
+    When did this occur?
+    <input name="ts" type="datetime-local"
+           value="{{ now().strftime('%Y-%m-%dT%H:%M') }}"
+           required>
   </label>
-  <br>
 
-  <label>Date
-    <input type="date" name="ts" required value="{{ now().date() }}">
+  <div style="height:.6rem"></div>
+
+  <label>
+    Note (optional)
+    <input name="note" type="text" maxlength="200">
   </label>
-  <br>
 
-  <button type="submit">Add</button>
+  <div style="height:.9rem"></div>
+
+  <button type="submit">Save</button>
 </form>
+
+<p style="margin-top:1rem">Built for COSC349 Assignment 2.</p>
 {% endblock %}
