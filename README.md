@@ -34,3 +34,22 @@ It uses **two EC2 instances**, **an RDS database**, and **an S3 bucket**.
    pip install -r requirements.txt
 
 5. **Look at the .env.example and create env files for both ec2 instances**
+
+6. **Initialize the Database Schema**
+Run this from one EC2 instance
+psql -h <rds-endpoint> -U <dbuser> -d <dbname> -f setup/init_db.sql
+
+7. **Start services**
+On Web Server: 
+sudo cp setup/carbon-tracker.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now carbon-tracker
+
+On Worker:
+sudo cp setup/carbon-worker.service /etc/systemd/system/
+sudo cp setup/carbon-worker.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now carbon-worker.timer
+
+8. **Access The application**
+Navigate to: http://<ec2-public-dns>
