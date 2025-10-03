@@ -6,7 +6,7 @@ After=network.target
 User=ec2-user
 WorkingDirectory=/opt/carbon-tracker
 EnvironmentFile=/opt/carbon-tracker/.env
-ExecStart=/opt/carbon-tracker/run_gunicorn.sh
+ExecStart=/usr/bin/python3 /usr/local/bin/gunicorn -w 3 -b 0.0.0.0:8000 "app:create_app"
 Restart=always
 
 [Install]
