@@ -64,5 +64,5 @@ sudo systemctl status carbon-tracker
 systemctl list-timers | grep carbon-worker
 journalctl -u carbon-worker -n 50 --no-pager
 
-8. **Access The application**
+9. **Access The application**
 Navigate to: http://<ec2-public-dns> or any domain provided on the AWS application
