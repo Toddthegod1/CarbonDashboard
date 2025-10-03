@@ -2,38 +2,39 @@
 {% block content %}
 <h2>Add Activity</h2>
 
-<form method="post" style="display:grid; gap:0.75rem; max-width:480px;">
-  <label>
-    Category
+<form method="post">
+  <label>Category
     <select name="category" required>
-      {% for c, u in categories %}
-        <option value="{{ c }}">{{ c }}</option>
+      {% for cat, unit in categories %}
+        <option value="{{ cat }}">{{ cat }}</option>
       {% endfor %}
     </select>
   </label>
+  <br>
 
-  <label>
-    Amount
-    <input name="amount" type="number" step="any" required>
+  <label>Amount
+    <input type="number" step="any" name="amount" required>
   </label>
+  <br>
 
-  <label>
-    Unit
-    <input name="unit" type="text" required value="{{ categories[0][1] if categories else '' }}">
+  <label>Unit
+    <select name="unit" required>
+      {% for cat, unit in categories %}
+        <option value="{{ unit }}">{{ unit }}</option>
+      {% endfor %}
+    </select>
   </label>
+  <br>
 
-  <label>
-    Note (optional)
-    <input name="note" type="text" placeholder="e.g., meter reading, trip purpose">
+  <label>Note
+    <input type="text" name="note">
   </label>
+  <br>
 
-  <!-- NEW: date/time of the activity -->
-  <label>
-    When did this occur?
-    <input name="ts" type="datetime-local"
-           value="{{ now().strftime('%Y-%m-%dT%H:%M') }}"
-           required>
+  <label>Date
+    <input type="date" name="ts" required value="{{ now().date() }}">
   </label>
+  <br>
 
   <button type="submit">Add</button>
 </form>
