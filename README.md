@@ -31,6 +31,8 @@ It uses **two EC2 instances**, **an RDS database**, and **an S3 bucket**.
    ```bash
    git clone https://github.com/<your-repo>/carbon-tracker.git /opt/carbon-tracker
    cd /opt/carbon-tracker
+   python3 -m venv .venv
+   source .venv/bin/activate
    pip install -r requirements.txt
 
 5. **Look at the .env.example and create env files for both ec2 instances**
@@ -51,5 +53,16 @@ sudo cp setup/carbon-worker.timer /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now carbon-worker.timer
 
+8. **If you find something does not work**
+Try the following to identify the problem or as a sanity check
+# on Web EC2
+curl -I http://127.0.0.1/health         # expect 200 OK
+sudo ss -tulpn | grep -E ':(80|5000)'   # nginx:80, gunicorn:5000
+sudo systemctl status carbon-tracker
+
+# on Worker EC2
+systemctl list-timers | grep carbon-worker
+journalctl -u carbon-worker -n 50 --no-pager
+
 8. **Access The application**
-Navigate to: http://<ec2-public-dns>
+Navigate to: http://<ec2-public-dns> or any domain provided on the AWS application
