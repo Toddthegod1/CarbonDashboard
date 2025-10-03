@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Reports</h2>
+
 <form method="post" style="margin-bottom: 1rem;">
   <label>Year
     <input name="year" type="number" min="2000" max="2100" required
@@ -15,7 +16,13 @@
 
 <table>
   <thead>
-    <tr><th>Year</th><th>Month</th><th>Status</th><th>Download</th><th>Updated</th></tr>
+    <tr>
+      <th>Year</th>
+      <th>Month</th>
+      <th>Status</th>
+      <th>Download</th>
+      <th>Updated</th>
+    </tr>
   </thead>
   <tbody>
   {% for r in reports %}
@@ -25,7 +32,8 @@
       <td>{{ r.status }}</td>
       <td>
         {% if r.status == 'COMPLETE' and r.s3_key %}
-          <a href="{{ url_for('main.download_report', report_id=r.id) }}">Download</a>
+         <!-- Requires object ACL = public-read -->
+          <a href="https://{{ S3_BUCKET }}.s3.{{ AWS_REGION }}.amazonaws.com/{{ r.s3_key }}" target="_blank" rel="noopener">Download</a>
         {% else %}
           —
         {% endif %}
