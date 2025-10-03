@@ -1,0 +1,9 @@
+[Unit]
+Description=Carbon Tracker Report Worker (single run)
+
+[Service]
+Type=oneshot
+User=ec2-user
+WorkingDirectory=/opt/carbon-tracker
+EnvironmentFile=/opt/carbon-tracker/.env
+ExecStart=/usr/bin/python3 -m app.report_worker

@@ -1,0 +1,15 @@
+#cloud-config
+package_update: true
+packages:
+  - git
+  - python3
+  - python3-pip
+runcmd:
+  - mkdir -p /opt
+  - cd /opt && git clone https://your.git/URL.git carbon-tracker
+  - cd /opt/carbon-tracker && python3 -m pip install -r requirements.txt
+  - cp /opt/carbon-tracker/setup/carbon-worker.service /etc/systemd/system/carbon-worker.service
+  - cp /opt/carbon-tracker/setup/carbon-worker.timer /etc/systemd/system/carbon-worker.timer
+  - systemctl daemon-reload
+  - systemctl enable carbon-worker.timer
+  - systemctl start carbon-worker.timer

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Recent Activities</h2>
+<table>
+  <thead><tr><th>Time</th><th>Category</th><th>Amount</th><th>Unit</th><th>kg CO₂e</th><th>Note</th></tr></thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r.ts }}</td>
+      <td>{{ r.category }}</td>
+      <td>{{ '%.3f'|format(r.amount) }}</td>
+      <td>{{ r.unit }}</td>
+      <td>{{ '%.3f'|format(r.kg_co2e) }}</td>
+      <td>{{ r.note }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

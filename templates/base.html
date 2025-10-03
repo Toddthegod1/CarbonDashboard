@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Carbon Tracker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<header>
+  <h1>Carbon Tracker</h1>
+  <nav>
+    <a href="{{ url_for('main.index') }}">Dashboard</a>
+    <a href="{{ url_for('main.add_activity') }}">Add Activity</a>
+    <a href="{{ url_for('main.list_activities') }}">Recent</a>
+    <a href="{{ url_for('main.reports') }}">Reports</a>
+    <a href="{{ url_for('main.index') }}#about">About</a>
+  </nav>
+</header>
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flashes">
+      {% for cat,msg in messages %}
+        <li class="{{cat}}">{{ msg }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<footer>
+  <p>Built for COSC349 Assignment 2.</p>
+</footer>
+</body>
+</html>

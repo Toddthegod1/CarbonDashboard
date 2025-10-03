@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Reports</h2>
+<form method="post" style="margin-bottom: 1rem;">
+  <label>Year <input name="year" type="number" min="2000" max="2100" required value="{{ now().year if false }}"></label>
+  <label>Month <input name="month" type="number" min="1" max="12" required></label>
+  <button type="submit">Request Report</button>
+</form>
+
+<table>
+  <thead><tr><th>Year</th><th>Month</th><th>Status</th><th>Download</th><th>Updated</th></tr></thead>
+  <tbody>
+    {% for r in reports %}
+    <tr>
+      <td>{{ r.period_year }}</td>
+      <td>{{ r.period_month }}</td>
+      <td>{{ r.status }}</td>
+      <td>
+        {% if r.status == 'COMPLETE' and r.s3_key %}
+          <!-- Your bucket may not be public; in demo you can make object public or proxy via signed URL -->
+          <a href="https://{{ config.S3_BUCKET }}.s3.{{ config.AWS_REGION }}.amazonaws.com/{{ r.s3_key }}">CSV</a>
+        {% else %}
+          —
+        {% endif %}
+      </td>
+      <td>{{ r.updated_at }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<section>
+  <h2>Overall emissions</h2>
+  <p><strong>Total:</strong> {{ '%.2f'|format(grand or 0) }} kg CO₂e</p>
+  <table>
+    <thead><tr><th>Category</th><th>Unit</th><th>Entries</th><th>Total amount</th><th>Total kg CO₂e</th></tr></thead>
+    <tbody>
+      {% for r in totals %}
+      <tr>
+        <td>{{ r.category }}</td>
+        <td>{{ r.unit }}</td>
+        <td>{{ r.entries }}</td>
+        <td>{{ '%.2f'|format(r.total_amount) }}</td>
+        <td>{{ '%.2f'|format(r.total_kg) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+<section id="about">
+  <h2>About</h2>
+  <p>Track activities (kWh, km, kg, etc.) and convert to CO₂e using configurable factors.</p>
+</section>
+{% endblock %}

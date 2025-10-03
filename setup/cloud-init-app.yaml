@@ -1,0 +1,18 @@
+#cloud-config
+package_update: true
+packages:
+  - git
+  - python3
+  - python3-pip
+  - nginx
+runcmd:
+  - usermod -aG nginx ec2-user || true
+  - mkdir -p /opt
+  - cd /opt && git clone https://your.git/URL.git carbon-tracker
+  - cd /opt/carbon-tracker && python3 -m pip install -r requirements.txt
+  - cp /opt/carbon-tracker/setup/nginx.conf /etc/nginx/conf.d/default.conf
+  - systemctl enable nginx && systemctl restart nginx
+  - cp /opt/carbon-tracker/setup/carbon-tracker.service /etc/systemd/system/carbon-tracker.service
+  - systemctl daemon-reload
+  - systemctl enable carbon-tracker
+  - systemctl start carbon-tracker
