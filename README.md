@@ -60,6 +60,11 @@ curl -I http://127.0.0.1/health         # expect 200 OK
 sudo ss -tulpn | grep -E ':(80|5000)'   # nginx:80, gunicorn:5000
 sudo systemctl status carbon-tracker
 
+8.5 **Common error if the website does not load is that nginx is not running, so do the following in that case**
+sudo nginx -t
+sudo systemctl enable --now nginx
+sudo systemctl reload nginx
+
 # on Worker EC2
 systemctl list-timers | grep carbon-worker
 journalctl -u carbon-worker -n 50 --no-pager
